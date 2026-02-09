@@ -1,37 +1,40 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import { removeItem, updateQuantity } from "../features/cart/CartSlice";
+import { useSelector } from "react-redux";
+import CartItem from "./CartItem";
 
-const CartItem = ({ item }) => {
-  const dispatch = useDispatch();
+const Cart = ({ onContinueShopping }) => {
+  const cartItems = useSelector((state) => state.cart.items);
 
-  const handleRemove = () => {
-    dispatch(removeItem({ id: item.id }));
-  };
-
-  const handleIncrement = () => {
-    dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }));
-  };
-
-  const handleDecrement = () => {
-    if (item.quantity > 1) {
-      dispatch(updateQuantity({ id: item.id, quantity: item.quantity - 1 }));
-    }
-  };
+  // Total cart amount calculation
+  const totalAmount = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
-    <div className="cart-item">
-      <h2>{item.name}</h2>
-      <p>Price: ₹{item.price}</p>
-      <div className="quantity-controls">
-        <button onClick={handleDecrement}>-</button>
-        <input type="number" value={item.quantity} readOnly />
-        <button onClick={handleIncrement}>+</button>
-      </div>
-      <button onClick={handleRemove}>Remove</button>
-      <p>Total: ₹{item.price * item.quantity}</p>
+    <div className="cart-page">
+      <h1>Shopping Cart</h1>
+
+      {cartItems.length === 0 ? (
+        <p>Your cart is empty</p>
+      ) : (
+        <>
+          {cartItems.map((item) => (
+            <CartItem key={item.id} item={item} />
+          ))}
+
+          <h2>Total Cart Amount: ₹{totalAmount}</h2>
+
+          <div className="cart-buttons">
+            <button className="checkout-button">Checkout</button>
+            <button className="continue-button" onClick={onContinueShopping}>
+              Continue Shopping
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
-export default CartItem;
+export default Cart;
